@@ -1,8 +1,12 @@
 import { Outfit } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({ subsets: ['latin'], weigh:["400","500","600","700"]})
-
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-outfit", // ✅ thêm dòng này để tạo biến CSS
+});
 
 export const metadata = {
   title: "Blog App",
@@ -12,7 +16,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={outfit.className}>{children}</body>
+      <body className={`${outfit.variable} font-outfit`}>
+        {children}
+      </body>
     </html>
   );
 }

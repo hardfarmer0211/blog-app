@@ -1,3 +1,10 @@
+@import "tailwindcss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer base {
+  button {
+    @apply appearance-none bg-transparent border-none outline-none p-0 m-0 cursor-pointer;
+  }
+}
