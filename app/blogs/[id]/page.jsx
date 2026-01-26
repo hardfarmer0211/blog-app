@@ -34,9 +34,13 @@ const page = ({params}) => {
             <Link href={'/'}>
             <Image src={assets.logo} width={180} height={70} alt="" className="w-[130px] sm:w-auto" />
             </Link>
-            <button className='flex items-center gap-2 font-medium py-1 px-3 sm:py-3 sm:px-6 border-10 border-black shadow-[-7px_7px_5px_5px_#000000]'>
-                Get started <Image src={assets.arrow} alt="" width={24} height={24} />
-            </button>
+            <Link href="/admin/addProduct">
+  <button className='flex items-center gap-2 font-medium py-1 px-3 sm:py-3 sm:px-6 border-10 border-black shadow-[-7px_7px_5px_5px_#000000]'>
+      Get started
+      <Image src={assets.arrow} alt="" width={24} height={24} />
+  </button>
+</Link>
+
         </div>
         <div className='text-center my-24'>
             <h1 className='text-2x1 sm:text-5x1 font-semibold max-w-[700px] mx-auto'>{data.title}</h1>
