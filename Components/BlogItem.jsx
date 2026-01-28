@@ -1,39 +1,129 @@
 import React from "react";
 import Image from "next/image";
-import { assets, blog_data } from "../assets/assets";
+import { assets } from "../assets/assets";
 import Link from "next/link";
 
 const BlogItem = ({title, description, category, image, id}) => {
-  const blog = blog_data[0]; // test với blog đầu tiên
+    // Category translation for display
+    const categoryTranslations = {
+        'Technology': 'テクノロジー',
+        'Startup': 'スタートアップ',
+        'Lifestyle': 'ライフスタイル'
+    };
 
-  return (
-    <div className="max-w-[500px] sm:max-w-[390px] bg-white border border-black rounded-md overflow-hidden hover:shadow-[-7px_7px_0px_#000000] transition-shadow duration-200">
-      <Link href={`/blogs/${id}`}>
-        <div className="relative w-full h-[200px] border-b border-black">
-          <Image
-            src={image}
-            alt="Blog thumbnail"
-            fill
-            sizes="(max-width: 768px) 100vw, 330px"
-            className="object-cover"
-          />
+    const displayCategory = categoryTranslations[category] || category;
+
+    return (
+        <div className="
+            group
+            max-w-[500px] sm:max-w-[390px] 
+            bg-white 
+            border-2 border-black 
+            rounded-xl 
+            overflow-hidden 
+            shadow-[-4px_4px_0px_#000000]
+            transition-all duration-300 ease-out
+            hover:shadow-[-8px_8px_0px_#000000] 
+            hover:translate-x-[-4px] hover:translate-y-[-4px]
+        ">
+            {/* IMAGE WITH OVERLAY */}
+            <Link href={`/blogs/${id}`}>
+                <div className="relative w-full h-[240px] border-b-2 border-black overflow-hidden">
+                    <Image
+                        src={image}
+                        alt="Blog thumbnail"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 390px"
+                        className="
+                            object-cover 
+                            transition-transform duration-500 ease-out
+                            group-hover:scale-110
+                        "
+                    />
+                    
+                    {/* Dark overlay on hover */}
+                    <div className="
+                        absolute inset-0 
+                        bg-black/0 
+                        group-hover:bg-black/20 
+                        transition-all duration-300
+                    "></div>
+                    
+                    {/* Category badge on image - JAPANESE */}
+                    <div className="
+                        absolute top-4 left-4
+                        px-3 py-1.5 
+                        bg-black text-white 
+                        text-xs sm:text-sm font-bold
+                        rounded-md
+                        shadow-lg
+                        transform transition-all duration-300
+                        group-hover:scale-110
+                    ">
+                        {displayCategory}
+                    </div>
+                </div>
+            </Link>
+
+            {/* CONTENT */}
+            <div className="p-5 sm:p-6">
+                <Link href={`/blogs/${id}`}>
+                    <h5 className="
+                        mb-3 
+                        text-lg sm:text-xl 
+                        font-bold 
+                        tracking-tight 
+                        text-gray-900
+                        line-clamp-2
+                        transition-colors duration-200
+                        group-hover:text-blue-600
+                    ">
+                        {title}
+                    </h5>
+                </Link>
+                
+                <p 
+                    className="
+                        mb-4 
+                        text-sm 
+                        text-gray-600 
+                        line-clamp-3
+                        leading-relaxed
+                    "
+                    dangerouslySetInnerHTML={{__html: description.slice(0, 120)}}
+                />
+                
+                {/* もっと見る BUTTON */}
+                <Link href={`/blogs/${id}`}>
+                    <div className="
+                        inline-flex items-center gap-2
+                        py-2 px-4
+                        font-bold text-sm
+                        text-black
+                        border-2 border-black
+                        rounded-lg
+                        transition-all duration-300
+                        hover:bg-black hover:text-white
+                        hover:shadow-[-3px_3px_0px_#ff0000]
+                        active:shadow-none
+                        active:translate-x-[2px] active:translate-y-[2px]
+                    ">
+                        もっと見る
+                        <Image 
+                            src={assets.arrow} 
+                            alt="Arrow" 
+                            height={14} 
+                            width={14}
+                            className="
+                                transition-transform duration-300
+                                group-hover:translate-x-1
+                            " 
+                        />
+                    </div>
+                </Link>
+            </div>
         </div>
-      </Link>
-
-      {/* Category nằm dưới ảnh, trong phần trắng */}
-      <div className="p-4">
-        <p className="inline-block px-2 py-1 bg-black text-white text-sm rounded-sm">{category}</p>
-      </div>
-      <div className="p-5">
-        <h5 className="mb-2 text-lg font-medium tracking-tight text-gray-900">{title}</h5>
-        <p className="mb-3 text-sm tracking-tight text-gray-700"
-        dangerouslySetInnerHTML={{__html:description.slice(0,120)}}></p>
-        <Link href={`/blogs/${id}`} className="inline-flex item-center py-2 font-semibold text-center">
-            Read more <Image src={assets.arrow} className="ml-2 " alt="" height={16} width={16} />
-        </Link>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default BlogItem;
