@@ -48,7 +48,7 @@ const Footer = () => {
                 </p>
 
                 {/* SOCIAL ICONS */}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     {[
                         { icon: assets.facebook_icon, name: 'Facebook' },
                         { icon: assets.twitter_icon, name: 'Twitter' },
@@ -59,7 +59,7 @@ const Footer = () => {
                             className="
                                 group
                                 relative
-                                w-10 h-10 sm:w-12 sm:h-12
+                                w-14 h-14 sm:w-16 sm:h-16
                                 flex items-center justify-center
                                 bg-white/5
                                 border-2 border-white/10
@@ -76,8 +76,8 @@ const Footer = () => {
                             <Image 
                                 src={social.icon} 
                                 alt={social.name}
-                                width={24} 
-                                height={24}
+                                width={48} 
+                                height={48}
                                 className="
                                     transition-transform duration-300
                                     group-hover:scale-110
