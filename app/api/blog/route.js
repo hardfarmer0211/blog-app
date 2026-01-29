@@ -1,61 +1,108 @@
 import { NextResponse } from "next/server";
 import { ConnectDB } from "@/lib/config/db";
 import BlogModel from "@/lib/models/BlogModel";
-import { writeFile } from "fs/promises";
-const fs = require('fs')
+import { put, del } from '@vercel/blob';
 
-// api endpoint to get all blogs
+// API endpoint to get all blogs
 export async function GET(request) {
-  await ConnectDB(); // ✅ connect đúng chỗ
+  await ConnectDB();
 
   const blogId = request.nextUrl.searchParams.get("id");
   if (blogId) {
     const blog = await BlogModel.findById(blogId);
     return NextResponse.json(blog);
-  }
-  else{
+  } else {
     const blogs = await BlogModel.find({});
-  
     return NextResponse.json({ blogs });
   }
-   
-    
 }
-// API endpoint for uploading blog 
+
+// API endpoint for uploading blog with Vercel Blob
 export async function POST(request) {
-  await ConnectDB(); // ✅ BẮT BUỘC
+  try {
+    await ConnectDB();
 
-  const formData = await request.formData();
-  const timestamp = Date.now();
+    const formData = await request.formData();
+    const image = formData.get("image");
 
-  const image = formData.get("image");
-  const imageByteData = await image.arrayBuffer();
-  const buffer = Buffer.from(imageByteData);
-  const path = `./public/${timestamp}_${image.name}`;
-  await writeFile(path, buffer);
+    if (!image) {
+      return NextResponse.json(
+        { success: false, msg: "No image provided" },
+        { status: 400 }
+      );
+    }
 
-  const blogData = {
-    title: formData.get("title"),
-    description: formData.get("description"),
-    category: formData.get("category"),
-    author: formData.get("author"),
-    image: `/${timestamp}_${image.name}`,
-    authorImg: formData.get("authorImg"),
-  };
+    // Upload image to Vercel Blob
+    const blob = await put(image.name, image, {
+      access: 'public',
+      addRandomSuffix: true, // Tự động thêm random string để tránh trùng tên
+    });
 
-  await BlogModel.create(blogData);
+    // Create blog data with Blob URL
+    const blogData = {
+      title: formData.get("title"),
+      description: formData.get("description"),
+      category: formData.get("category"),
+      author: formData.get("author"),
+      image: blob.url, // ← URL từ Vercel Blob
+      authorImg: formData.get("authorImg"),
+    };
 
-  return NextResponse.json({ success: true, msg: "Blog Added" });
+    await BlogModel.create(blogData);
+
+    return NextResponse.json({ 
+      success: true, 
+      msg: "Blog Added",
+      imageUrl: blob.url 
+    });
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json(
+      { success: false, msg: "Upload failed", error: error.message },
+      { status: 500 }
+    );
+  }
 }
 
-
-//creating api endpoint to delete Blogs
-
+// API endpoint to delete blog
 export async function DELETE(request) {
-  const id = await request.nextUrl.searchParams.get('id');
-  const blog = await BlogModel.findById(id);
-  fs.unlink(`./public${blog.image}`, ()=>{});
-  await BlogModel.findByIdAndDelete(id);
-  return NextResponse.json({msg:"Blog Deleted"});
+  try {
+    await ConnectDB();
+    
+    const id = request.nextUrl.searchParams.get('id');
+    const blog = await BlogModel.findById(id);
 
+    if (!blog) {
+      return NextResponse.json(
+        { success: false, msg: "Blog not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete image from Vercel Blob
+    if (blog.image && blog.image.includes('vercel-storage.com')) {
+      try {
+        await del(blog.image);
+      } catch (error) {
+        console.error('Error deleting blob:', error);
+        // Continue anyway - xóa blog ngay cả khi xóa ảnh thất bại
+      }
+    }
+
+    // Delete blog from database
+    await BlogModel.findByIdAndDelete(id);
+
+    return NextResponse.json({ 
+      success: true, 
+      msg: "Blog Deleted" 
+    });
+
+  } catch (error) {
+    console.error('Delete error:', error);
+    return NextResponse.json(
+      { success: false, msg: "Delete failed", error: error.message },
+      { status: 500 }
+    );
+  }
 }
